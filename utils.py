@@ -19,7 +19,7 @@ class Daguan(object):
             words = row['word_seg'].split()
 
             dataset.append(words)
-            labels.append(int(row['class']))
+            labels.append(int(row['class']) - 1)
             for word in words:
                 if not self.word_cnt.get(word):
                     self.word_cnt[word] = 0

@@ -152,7 +152,7 @@ if __name__=="__main__":
     config = Config()
     parser = argparse.ArgumentParser()
     parser.add_argument('-mode', type=str, default='train')
-    parser.add_argument('-module', type=str, choises=config.model.MODULES)
+    parser.add_argument('-module', type=str, choices=config.model.MODULES)
     parser.add_argument('-gpu', type=str, default=0)
     args = parser.parse_args()
 

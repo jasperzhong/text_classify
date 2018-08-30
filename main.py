@@ -9,7 +9,7 @@ from sklearn.metrics import precision_recall_fscore_support as score
 
 from config import Config
 from model import Net
-from utils import load_dataset, sent_to_tensor
+from utils import Daguan, sent_to_tensor
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 os.environ["CUDA_CACHE_PATH"] = "/home/zyc/cudacache"
@@ -19,8 +19,8 @@ def train(config):
     print(choise + " is available")
     device = torch.device(choise)
 
-    dataset, labels, vocab_size = load_dataset()
-    config.model.vocab_size = vocab_size
+    daguan = Daguan(config)
+    dataset, labels, word_to_id = daguan.load_dataset()
     config.model.class_num = len(set(labels))
     print('class num:',config.model.class_num)
 
@@ -63,11 +63,9 @@ def train(config):
             x = train_dataset[i: i + batch_size]
             label = train_labels[i: i + batch_size]
 
-            x = sent_to_tensor(x, max_seq_len).to(device)
+            x = sent_to_tensor(x, word_to_id,  max_seq_len).to(device)
             label = torch.LongTensor(label).to(device)
-            print(x.shape)
-            print(x[0][0])
-            print(type(x[0][0]))
+            
             output = net(x)
             result.extend(list(torch.max(output, 1)[1].cpu().numpy())) 
 
@@ -89,7 +87,7 @@ def train(config):
                 x = dev_dataset[i: i + batch_size]
                 label = dev_labels[i: i + batch_size]
                 
-                x = sent_to_tensor(x, max_seq_len).to(device)
+                x = sent_to_tensor(x, word_to_id, max_seq_len).to(device)
                 label = torch.LongTensor(label).to(device)
 
                 output = net(x)

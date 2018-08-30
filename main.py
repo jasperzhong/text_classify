@@ -1,18 +1,18 @@
+import argparse
 import os
 import time
 
+import pandas
+import pandas
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from sklearn.metrics import precision_recall_fscore_support as score
-from tqdm import tqdm
 
 from config import Config
 from model import *
 from utils import Daguan, sent_to_tensor
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 os.environ["CUDA_CACHE_PATH"] = "/home/zyc/cudacache"
 
 def train(config):
@@ -34,12 +34,25 @@ def train(config):
     dev_labels = labels[divid:]
 
     print("Training from scratch!")
-    net = BiLSTMNet(config.model.vocab_size,
-            config.model.embedd_size,
-            config.model.hidden_size,
-            config.model.max_seq_len,
-            config.model.class_num,
-            config.model.n_layers)
+    if config.model.module == "BiLSTM":
+        net = BiLSTMNet(config.model.vocab_size,
+                config.model.embedd_size,
+                config.model.hidden_size,
+                config.model.max_seq_len,
+                config.model.class_num,
+                config.model.dropout,
+                config.model.n_layers)
+    elif config.model.module == "BiGRU":
+        net = BiGRUNet(config.model.vocab_size,
+                config.model.embedd_size,
+                config.model.hidden_size,
+                config.model.max_seq_len,
+                config.model.class_num,
+                config.model.dropout,
+                config.model.n_layers)
+    else:
+        raise ValueError("Undefined network")
+
     net.to(device)
     
     batch_size = config.training.batch_size
@@ -104,7 +117,51 @@ def train(config):
             print("net saved!")
 
 
+def test(config):
+    choise = "cuda" if torch.cuda.is_available() else "cpu"
+    print(choise + " is available")
+    device = torch.device(choise)
+
+    daguan = Daguan(config)
+    dataset, word_to_id = daguan.load_test_dataset()
     
+    try:
+        net = torch.load(config.resourses.model_path + "_" + config.resourses.model_name)
+    except FileNotFoundError:
+        raise FileNotFoundError("No model!")
+    
+    # dev
+    with torch.no_grad():
+        result = []
+        for i in range(0, len(dev_dataset), batch_size):
+            x = dev_dataset[i: i + batch_size]
+            label = dev_labels[i: i + batch_size]
+            
+            x = sent_to_tensor(x, word_to_id, max_seq_len).to(device)
+            label = torch.LongTensor(label).to(device)
+
+            output = net(x)
+            result.extend(list(torch.max(output, 1)[1].cpu().numpy())) 
+
+    id = [i for i in range(1, len(result+1))]
+    df = pd.DataFrame({"id":id, "class": result})
+    df.to_csv("result.csv")
+
+
 if __name__=="__main__":
     config = Config()
-    train(config)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-mode', type=str, default='train')
+    parser.add_argument('-module', type=str, choises=config.model.MODULES)
+    parser.add_argument('-gpu', type=str, default=0)
+    args = parser.parse_args()
+
+    config.model.module = args.module
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+
+    if args.mode == "train":
+        train(config)
+    elif args.mode == "test":
+        test(config)
+    else:
+        raise ValueError("undefined mode")

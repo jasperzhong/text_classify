@@ -153,10 +153,12 @@ if __name__=="__main__":
     parser.add_argument('-mode', type=str, default='train')
     parser.add_argument('-module', type=str, choices=config.model.MODULES)
     parser.add_argument('-gpu', type=str, default=0)
+    parser.add_argument('-model_name', type=str, default=config.resourses.model_name)
     args = parser.parse_args()
 
     config.model.module = args.module
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+    config.resourses.model_name = args.model_name
 
     if args.mode == "train":
         train(config)

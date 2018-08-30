@@ -9,9 +9,9 @@ class ResourcesConfig(object):
 
 class TrainingConfig(object):
     lr = 1e-3
-    batch_size = 512
+    batch_size = 256
     epochs = 50
-    weight_decay = 1e-5
+    weight_decay = 1e-6
 
 class ModelConfig(object):
     max_seq_len = 1000

@@ -100,8 +100,7 @@ def train(config):
             100 * precision, 100 * recall))
         if f1 > best_f1:
             best_f1 = f1
-            torch.save(net, config.resourses.model_path + config.type + "_" + 
-                       config.resourses.model_name)
+            torch.save(net, config.resourses.model_path + "_" + config.resourses.model_name)
             print("net saved!")
 
 

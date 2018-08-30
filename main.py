@@ -2,13 +2,13 @@ import argparse
 import os
 import time
 
-import pandas
-import pandas
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from sklearn.metrics import precision_recall_fscore_support as score
+from tqdm import tqdm
 
 from config import Config
 from model import *
@@ -130,22 +130,21 @@ def test(config):
     except FileNotFoundError:
         raise FileNotFoundError("No model!")
     
-    # dev
+    batch_size = config.training.batch_size
+    max_seq_len = config.model.max_seq_len
+    # test
     with torch.no_grad():
         result = []
-        for i in range(0, len(dev_dataset), batch_size):
-            x = dev_dataset[i: i + batch_size]
-            label = dev_labels[i: i + batch_size]
-            
+        for i in tqdm(range(0, len(dataset), batch_size)):
+            x = dataset[i: i + batch_size]
             x = sent_to_tensor(x, word_to_id, max_seq_len).to(device)
-            label = torch.LongTensor(label).to(device)
 
             output = net(x)
             result.extend(list(torch.max(output, 1)[1].cpu().numpy())) 
-
-    id = [i for i in range(1, len(result+1))]
+    result = [n + 1 for n in result]
+    id = [i for i in range(1, len(result)+1)]
     df = pd.DataFrame({"id":id, "class": result})
-    df.to_csv("result.csv")
+    df.to_csv("result.csv", index=False, encoding='utf-8')
 
 
 if __name__=="__main__":

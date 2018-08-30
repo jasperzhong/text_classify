@@ -17,7 +17,7 @@ class ModelConfig(object):
     module = None
     MODULES = ["BiLSTM", "BiGRU"]
 
-    max_seq_len = 1024
+    max_seq_len = 1000
     embedd_size = 50
     
     hidden_size = 64 

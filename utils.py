@@ -1,7 +1,7 @@
 import pandas as pd
 import torch
 import json
-
+import random
 
 class Daguan(object):
     def __init__(self, config):

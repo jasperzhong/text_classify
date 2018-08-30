@@ -1,3 +1,4 @@
+import os
 import time
 
 import torch
@@ -10,6 +11,8 @@ from config import Config
 from model import Net
 from utils import load_dataset, sent_to_tensor
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_CACHE_PATH"] = "/home/zyc/cudacache"
 
 def train(config):
     choise = "cuda" if torch.cuda.is_available() else "cpu"
@@ -59,10 +62,12 @@ def train(config):
 
             x = train_dataset[i: i + batch_size]
             label = train_labels[i: i + batch_size]
-            
+
             x = sent_to_tensor(x, max_seq_len).to(device)
             label = torch.LongTensor(label).to(device)
-
+            print(x.shape)
+            print(x[0][0])
+            print(type(x[0][0]))
             output = net(x)
             result.extend(list(torch.max(output, 1)[1].cpu().numpy())) 
 

@@ -33,11 +33,11 @@ class Net(nn.Module):
         # [T * B] -> [T * B * E]
         embed = self.embedding(x)
 
-        # [T * B * E] -> [T * B * 2H] -> [B * T * 2H]
-        output, hidden = self.lstm(embed, None).transpose(0, 1)
+        # [T * B * E] -> [T * B * 2H]
+        output, hidden = self.lstm(embed, None)
 
-        # [B * T * 2H] -> [B * Tx2H]
-        output = output.view(output.size(0), -1)
+        # [T * B * 2H] -> [B * T * 2H] ->[B * Tx2H]
+        output = output.transpose(0, 1).view(output.size(0), -1)
 
         # [B * Tx2H] -> [B * 200]
         output = self.linear1(output)
@@ -47,8 +47,4 @@ class Net(nn.Module):
         output = self.linear2(output)
 
         return output
-
-
-
-
 

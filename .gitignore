@@ -1,2 +1,4 @@
 *.pyc
 /new_data/
+/.ipynb_checkpoints/
+.ipynb

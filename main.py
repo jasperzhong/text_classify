@@ -142,7 +142,7 @@ def test(config):
             output = net(x)
             result.extend(list(torch.max(output, 1)[1].cpu().numpy())) 
     result = [n + 1 for n in result]
-    id = [i for i in range(1, len(result)+1)]
+    id = [i for i in range(len(result))]
     df = pd.DataFrame({"id":id, "class": result})
     df.to_csv("result.csv", index=False, encoding='utf-8')
 

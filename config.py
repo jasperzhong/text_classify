@@ -20,7 +20,7 @@ class ModelConfig(object):
     max_seq_len = 1000
     embedd_size = 50
     
-    hidden_size = 64 
+    hidden_size = 128 
     class_num = 19
     n_layers = 3
     dropout=0.3

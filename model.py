@@ -60,17 +60,22 @@ class BiGRUNet(nn.Module):
             input_size=embed_size, 
             hidden_size=hidden_size, 
             num_layers=n_layers, 
-            dropout=dropout,
+            #dropout=dropout,
             bidirectional=True
         )
 
         self.linear1 = nn.Linear(
-            hidden_size * 2 * seq_len,
-            3000
+            hidden_size * 2,
+            192
         )
 
         self.linear2 = nn.Linear(
-            3000,
+            192,
+            84
+        )
+
+        self.linear3 = nn.Linear(
+            84,
             class_num
         )
 
@@ -85,16 +90,16 @@ class BiGRUNet(nn.Module):
         # [T * B * E] -> [T * B * 2H]
         output, hidden = self.gru(embed, None)
 
-        # [T * B * 2H] -> [B * T * 2H] -> [B * Tx2H]
+        # [T * B * 2H] -> [B * T * 2H] 
         output = output.transpose(0, 1).contiguous()
-        output = output.view(output.size(0), -1)
 
-        # [B * Tx2H] -> [B * 3000]
-        output = self.linear1(output)
-        output = F.relu(output)
-
-        # [B * 3000] -> [B * class_num]
-        output = self.linear2(output)
+        # sum [B * T * 2H] -> [B * 2H]
+        output = torch.sum(output, dim=1)
+        
+        # [B * 2H] -> [B * 192] -> [B * 84] -> [B * 19]
+        output = F.relu(self.linear1(output))
+        output = F.relu(self.linear2(output))
+        output = self.linear3(output)
 
         return output
 

@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 class BiLSTMNet(nn.Module):
     def __init__(self, vocab_size, embed_size, hidden_size, seq_len, class_num, n_layers=1):
-        super(Net, self).__init__()
+        super(BiLSTMNet, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_size)
 
         self.lstm = nn.LSTM(

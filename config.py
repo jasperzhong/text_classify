@@ -9,15 +9,15 @@ class ResourcesConfig(object):
 
 class TrainingConfig(object):
     lr = 1e-3
-    batch_size = 32
+    batch_size = 512
     epochs = 50
     weight_decay = 1e-5
 
 class ModelConfig(object):
     max_seq_len = 1000
-    embedd_size = 300
+    embedd_size = 50
     vocab_size = 10002
-    hidden_size = 128 
+    hidden_size = 64 
     class_num = 19
     n_layers = 3
 

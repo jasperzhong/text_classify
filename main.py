@@ -6,9 +6,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from sklearn.metrics import precision_recall_fscore_support as score
+from tqdm import tqdm
 
 from config import Config
-from model import Net
+from model import *
 from utils import Daguan, sent_to_tensor
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -33,7 +34,7 @@ def train(config):
     dev_labels = labels[divid:]
 
     print("Training from scratch!")
-    net = Net(config.model.vocab_size,
+    net = BiLSTMNet(config.model.vocab_size,
             config.model.embedd_size,
             config.model.hidden_size,
             config.model.max_seq_len,
@@ -57,7 +58,7 @@ def train(config):
 
         result = []
         # train
-        for i in range(0, len(train_dataset), batch_size):
+        for i in tqdm(range(0, len(train_dataset), batch_size)):
             optimizer.zero_grad()
 
             x = train_dataset[i: i + batch_size]
@@ -78,7 +79,7 @@ def train(config):
         f1, precision, recall, _  = score(train_labels, result, average='macro')
         print("Epoch %d: train f1 score: %.2f  precision: %.2f  recall: %.2f" % (epoch, 100 * f1, 
             100 * precision, 100 * recall))
-        print("Epoch %d train loss: %.3f  time: %.3f s" % (epoch, total_loss / len(train_arg1_sents), time.time() - start))
+        print("Epoch %d train loss: %.3f  time: %.3f s" % (epoch, total_loss / len(train_dataset), time.time() - start))
 
         # dev
         with torch.no_grad():

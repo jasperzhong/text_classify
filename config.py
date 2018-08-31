@@ -10,8 +10,9 @@ class ResourcesConfig(object):
 class TrainingConfig(object):
     lr = 1e-3
     batch_size = 256
-    epochs = 10
+    epochs = 30
     weight_decay = 1e-5
+    momentum = 0.9
 
 class ModelConfig(object):
     module = None
@@ -23,9 +24,9 @@ class ModelConfig(object):
     hidden_size = 128 
     class_num = 19
     n_layers = 3
-    dropout=0.3
+    dropout = 0.3
 
-    top_words = 10000
+    top_words = 20000
     vocab_size = top_words + 2
 
 

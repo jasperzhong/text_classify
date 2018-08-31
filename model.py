@@ -12,24 +12,33 @@ class BiLSTMNet(nn.Module):
             input_size=embed_size, 
             hidden_size=hidden_size, 
             num_layers=n_layers, 
-            #dropout=dropout,
+            dropout=dropout,
             bidirectional=True
         )
 
-        self.linear1 = nn.Linear(
-            hidden_size * 2,
-            192
+        self.classifier = nn.Sequential(
+            nn.Linear(
+                hidden_size * 2 * seq_len,
+                4096
+            ),
+            nn.ReLU(),
+            nn.Dropout(),
+            nn.Linear(
+                4096,
+                4096
+            ),
+            nn.ReLU(),
+            nn.Dropout(),
+            nn.Linear(
+                4096,
+                class_num
+            )
         )
 
-        self.linear2 = nn.Linear(
-            192,
-            84
-        )
-
-        self.linear3 = nn.Linear(
-            84,
-            class_num
-        )
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.normal_(m.weight, 0, 0.01)
+                nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
         '''
@@ -40,21 +49,16 @@ class BiLSTMNet(nn.Module):
         embed = self.embedding(x)
 
         # [T * B * E] -> [T * B * 2H]
-        output, hidden = self.lstm(embed, None)
+        output, hidden = self.lstm(embed)
 
-        # [T * B * 2H] -> [B * T * 2H] 
+        # [T * B * 2H] -> [B * T * 2H] -> [B * T x 2H]
         output = output.transpose(0, 1).contiguous()
-
-        # sum [B * T * 2H] -> [B * 2H]
-        output = torch.sum(output, dim=1)
+        output = output.view(output.size(0), -1)
         
-        # [B * 2H] -> [B * 192] -> [B * 84] -> [B * 19]
-        output = F.relu(self.linear1(output))
-        output = F.relu(self.linear2(output))
-        output = self.linear3(output)
+        # [B * T x 2H] -> [B * num_class]
+        output = self.classifier(output)
 
         return output
-
 
 
 class BiGRUNet(nn.Module):

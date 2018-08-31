@@ -62,7 +62,7 @@ def train(config):
     optimizer = optim.SGD(net.parameters(), lr=config.training.lr, 
                 weight_decay=config.training.weight_decay,
                 momentum=config.training.momentum) # L2
-    scheduler = StepLR(optimizer, step_size=2, gamma=0.5)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=2, gamma=0.5)
     
     print("Start training!")
     best_f1 = 0.0

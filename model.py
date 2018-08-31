@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class BiLSTMNet(nn.Module):
-    def __init__(self, vocab_size, embed_size, hidden_size, seq_len, class_num, dropout, d_a, r, n_layers=1):
+    def __init__(self, vocab_size, embed_size, hidden_size, seq_len, class_num, dropout, n_layers=1):
         super(BiLSTMNet, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_size)
 
@@ -12,38 +12,20 @@ class BiLSTMNet(nn.Module):
             input_size=embed_size, 
             hidden_size=hidden_size, 
             num_layers=n_layers, 
-            dropout=dropout,
+            #dropout=dropout,
             bidirectional=True
         )
 
-        self.self_attn = SelfAttn(
-            d_a,
-            r
+        self.self_attn = LinearSeqAttn(
+            2 * hidden_size
         )
 
         self.classifier = nn.Sequential(
             nn.Linear(
                 hidden_size * 2,
-                4906
-            ),
-            nn.ReLU(),
-            nn.Dropout(),
-            nn.Linear(
-                4906,
-                4906
-            ),
-            nn.ReLU(),
-            nn.Dropout(),
-            nn.Linear(
-                4906,
                 class_num
             )
         )
-
-        for m in self.modules():
-            if isinstance(m, nn.Linear):
-                nn.init.normal_(m.weight, 0, 0.01)
-                nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
         '''
@@ -56,42 +38,42 @@ class BiLSTMNet(nn.Module):
         # [T * B * E] -> [T * B * 2H]
         output, hidden = self.lstm(embed)
 
-        # [T * B * 2H] -> [B * r * 2H]  
-        output = self.self_attn(output)
+        # [T * B * 2H] -> [B * T * 2H]
+        output = output.transpose(0, 1).contiguous()
 
-        # [B * r * 2H] -> [B * r x 2H]
-        output = output.view(output.size(0), -1)
+        # weights [B * T]
+        weights = self.self_attn(output)
+
+        # [B * T] -> [B * 1 * T] * [B * T * 2H] -> [B * 1 * 2H] -> [B * 2H]
+        output = weights.unsqueeze(1).bmm(output).squeeze(1)
         
-        # [B * r x 2H] -> [B * num_class]
+        # [B * 2H] -> [B * num_class]
         output = self.classifier(output)
 
         return output
 
 
-class SelfAttn(nn.Module):
-    def __init__(self, hidden_size, d_a, r):
-        super(SelfAttn, self).__init__()
-        self.linear1 = nn.Linear(2 * hidden_size, d_a)
-        self.linear2 = nn.Linear(d_a, r, bias=False)
-        
+
+class LinearSeqAttn(nn.Module):
+    """Self attention over a sequence:
+    * o_i = softmax(Wx_i) for x_i in X.
+    """
+
+    def __init__(self, input_size):
+        super(LinearSeqAttn, self).__init__()
+        self.linear = nn.Linear(input_size, 1)
+
     def forward(self, x):
-        '''
-        Inputs:
-            x: {h_1 h_2 ... h_t}  [T x B x 2H]
-        Outpus:
-            M: [B x r x 2H]
-        '''
-        # [T x B x 2H] -> [T x B x d_a]
-        w = torch.tanh(self.linear1(x))
-
-        # [T x B x d_a] -> [T x B x r]
-        w = self.linear2(w)
-
-        # [T x B x r] -> [B x T x r] -> [B x r x T]
-        w = F.softmax(w.transpose(0, 1), dim=2).transpose(1, 2)
-
-        # [B x r x T] * [B x T x 2H] -> [B x r x 2H]
-        return torch.bmm(w, x.transpose(0, 1))
+        """
+        Args:
+            x: [B * T * 2H]
+        Output:
+            alpha: [B * T]
+        """
+        x_flat = x.view(-1, x.size(-1))
+        scores = self.linear(x_flat).view(x.size(0), x.size(1))
+        alpha = F.softmax(scores, dim=-1)
+        return alpha
 
 
 class BiGRUNet(nn.Module):

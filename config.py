@@ -8,7 +8,7 @@ class ResourcesConfig(object):
     model_name = "single.pkl"
 
 class TrainingConfig(object):
-    lr = 1e-3
+    lr = 1e-2
     batch_size = 32
     epochs = 30
     weight_decay = 1e-5
@@ -21,7 +21,7 @@ class ModelConfig(object):
     max_seq_len = 1000
     embedd_size = 50
     
-    hidden_size = 256 
+    hidden_size = 300 
     class_num = 19
     n_layers = 3
     dropout = 0.3

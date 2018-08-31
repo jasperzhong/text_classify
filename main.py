@@ -61,10 +61,8 @@ def train(config):
     max_seq_len = config.model.max_seq_len
 
     loss_func = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=config.training.lr, 
-                weight_decay=config.training.weight_decay,
-                momentum=config.training.momentum) # L2
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=2, gamma=0.5)
+    optimizer = optim.Adagrad(net.parameters(), lr=config.training.lr, 
+                weight_decay=config.training.weight_decay) # L2
     
     print("Start training!")
     best_f1 = 0.0
@@ -73,7 +71,6 @@ def train(config):
         start = time.time()
 
         result = []
-        scheduler.step()
         # train
         for i in tqdm(range(0, len(train_dataset), batch_size)):
             optimizer.zero_grad()

@@ -16,6 +16,11 @@ class BiLSTMNet(nn.Module):
             bidirectional=True
         )
 
+        self.linear = nn.Linear(
+            2 * hidden_size,
+            2 * hidden_size
+        )
+
         self.self_attn = LinearSeqAttn(
             2 * hidden_size
         )
@@ -40,6 +45,9 @@ class BiLSTMNet(nn.Module):
 
         # [T * B * 2H] -> [B * T * 2H]
         output = output.transpose(0, 1).contiguous()
+
+        # [B * T * 2H] -> [B * T * 2H]
+        output = torch.tanh(self.linear(output)) 
 
         # weights [B * T]
         weights = self.self_attn(output)

@@ -9,7 +9,7 @@ class ResourcesConfig(object):
 
 class TrainingConfig(object):
     lr = 1e-2
-    batch_size = 32
+    batch_size = 128
     epochs = 30
     weight_decay = 1e-5
     momentum = 0.9

@@ -41,8 +41,6 @@ def train(config):
                 config.model.max_seq_len,
                 config.model.class_num,
                 config.model.dropout,
-                config.model.d_a,
-                config.model.r,
                 config.model.n_layers)
     elif config.model.module == "BiGRU":
         net = BiGRUNet(config.model.vocab_size,

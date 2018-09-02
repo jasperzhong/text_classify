@@ -44,7 +44,7 @@ class Daguan(object):
         if flag:
             self.word_cnt = list(filter(lambda x: self.word_cnt[x] > 5, self.word_cnt))
 
-            for key, _ in self.word_cnt:
+            for key in self.word_cnt:
                 self.word_to_id[key] = self.vocab_size
                 self.vocab_size += 1
 

@@ -20,11 +20,6 @@ class Daguan(object):
 
             dataset.append(words)
             labels.append(int(row['class']) - 1)
-            if flag:
-                for word in words:
-                    if not self.word_cnt.get(word):
-                        self.word_cnt[word] = 0
-                    self.word_cnt[word] += 1
 
         assert(len(dataset) == len(labels))
 

@@ -1,5 +1,6 @@
 import argparse
 import os
+import pickle
 import time
 
 import pandas as pd
@@ -13,6 +14,7 @@ from tqdm import tqdm
 from config import Config
 from model import *
 from utils import Daguan, sent_to_tensor
+
 os.environ["CUDA_CACHE_PATH"] = "/home/zyc/cudacache"
 
 def train(config):

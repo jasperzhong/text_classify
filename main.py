@@ -33,6 +33,10 @@ def train(config):
     dev_dataset = dataset[divid:]
     dev_labels = labels[divid:]
 
+    # load pretrained embedding
+    with open('word2vec.pkl', 'rb') as f:
+        embedding = torch.FloatTensor(pickle.load(f))
+    
     print("Training from scratch!")
     if config.model.module == "BiLSTM":
         net = BiLSTMNet(config.model.vocab_size,
@@ -41,6 +45,8 @@ def train(config):
                 config.model.max_seq_len,
                 config.model.class_num,
                 config.model.dropout,
+                embedding,
+                config.training.fix,
                 config.model.n_layers)
     elif config.model.module == "BiGRU":
         net = BiGRUNet(config.model.vocab_size,
@@ -153,11 +159,13 @@ if __name__=="__main__":
     parser.add_argument('-module', type=str, choices=config.model.MODULES)
     parser.add_argument('-gpu', type=str, default=0)
     parser.add_argument('-model_name', type=str, default=config.resourses.model_name)
+    parser.add_argument('-fix', type=bool, default=True)
     args = parser.parse_args()
 
     config.model.module = args.module
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
     config.resourses.model_name = args.model_name
+    config.training.fix = args.fix
 
     if args.mode == "train":
         train(config)

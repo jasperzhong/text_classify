@@ -2,13 +2,12 @@ import pandas as pd
 import torch
 import json
 import random
+import pickle
 
 class Daguan(object):
     def __init__(self, config):
         self.config = config
-        self.word_to_id = {"<pad>": 0, "</s>": 1}
-        self.word_cnt = {}
-        self.vocab_size = 2
+        self.word_to_id = None
 
     def load_dataset(self):
         df = pd.read_csv("new_data/train_set.csv")
@@ -16,13 +15,6 @@ class Daguan(object):
         dataset = []
         labels = []
         
-        flag = 0
-        try:
-            with open("word_to_id.json", "r") as f:
-                self.word_to_id = json.load(f)
-        except FileNotFoundError:
-            flag = 1
-
         for _, row in df.iterrows():
             words = row['word_seg'].split()
 
@@ -41,16 +33,8 @@ class Daguan(object):
         random.shuffle(c)
         dataset, labels = zip(*c)
 
-        if flag:
-            self.word_cnt = list(filter(lambda x: self.word_cnt[x] > 5, self.word_cnt))
-
-            for key in self.word_cnt:
-                self.word_to_id[key] = self.vocab_size
-                self.vocab_size += 1
-
-            with open("word_to_id.json", "w") as f:
-                json_info = json.dumps(self.word_to_id)
-                f.write(json_info)
+        with open('word_to_id.pkl', 'rb') as f:
+            self.word_to_id = pickle.load(f)
 
         self.config.model.vocab_size = len(self.word_to_id)
         return dataset, labels, self.word_to_id

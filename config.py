@@ -14,6 +14,8 @@ class TrainingConfig(object):
     weight_decay = 1e-5
     momentum = 0.9
 
+    fix = True
+
 class ModelConfig(object):
     module = None
     MODULES = ["BiLSTM", "BiGRU"]

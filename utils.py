@@ -10,7 +10,7 @@ class Daguan(object):
         self.word_to_id = None
 
     def load_dataset(self):
-        df = pd.read_csv("new_data/" + config.mode + "_set.csv")
+        df = pd.read_csv("new_data/" + self.config.mode + "_set.csv")
 
         dataset = []
         labels = []

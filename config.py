@@ -21,7 +21,7 @@ class ModelConfig(object):
     MODULES = ["BiLSTM", "BiGRU"]
 
     max_seq_len = 1000
-    embedd_size = 50
+    embedd_size = 300
     
     hidden_size = 300 
     class_num = 19
@@ -35,6 +35,7 @@ class ModelConfig(object):
 
 
 class Config(object):
+    mode = None
     resourses = ResourcesConfig()
     training = TrainingConfig()
     model = ModelConfig()

@@ -67,7 +67,9 @@ def train(config):
     max_seq_len = config.model.max_seq_len
 
     loss_func = nn.CrossEntropyLoss()
-    optimizer = optim.Adagrad(net.parameters(), lr=config.training.lr, 
+
+    optimizer = optim.Adagrad(filter(lambda p: p.requires_grad, net.parameters()), 
+                lr=config.training.lr, 
                 weight_decay=config.training.weight_decay) # L2
     
     print("Start training!")
@@ -130,7 +132,7 @@ def test(config):
     device = torch.device(choise)
 
     daguan = Daguan(config)
-    dataset, word_to_id = daguan.load_test_dataset()
+    dataset, word_to_id = daguan.load_dataset()
     
     try:
         net = torch.load(config.resourses.model_path + "_" + config.resourses.model_name)
@@ -168,6 +170,7 @@ if __name__=="__main__":
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
     config.resourses.model_name = args.model_name
     config.training.fix = args.fix
+    config.mode = args.mode
 
     if args.mode == "train":
         train(config)

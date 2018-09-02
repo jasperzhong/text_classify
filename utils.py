@@ -10,7 +10,7 @@ class Daguan(object):
         self.word_to_id = None
 
     def load_dataset(self):
-        df = pd.read_csv("new_data/train_set.csv")
+        df = pd.read_csv("new_data/" + config.mode + "_set.csv")
 
         dataset = []
         labels = []
@@ -34,24 +34,6 @@ class Daguan(object):
         self.config.model.vocab_size = len(self.word_to_id)
         return dataset, labels, self.word_to_id
     
-    def load_test_dataset(self):
-        df = pd.read_csv("new_data/test_set.csv")
-
-        dataset = []
-
-        try:
-            with open("word_to_id.json", "r") as f:
-                self.word_to_id = json.load(f)
-        except FileNotFoundError:
-            raise FileNotFoundError("word_to_id.json is not found")
-
-        for _, row in df.iterrows():
-            words = row['word_seg'].split()
-            dataset.append(words)
-
-        assert(self.config.model.vocab_size == len(self.word_to_id))
-        return dataset, self.word_to_id
-
 
 def sent_to_tensor(batch, word_to_id, max_seq_len):
     '''

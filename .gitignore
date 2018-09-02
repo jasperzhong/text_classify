@@ -5,3 +5,4 @@
 *.json
 /model/
 *.csv
+*.pkl

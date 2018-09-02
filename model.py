@@ -8,7 +8,7 @@ class BiLSTMNet(nn.Module):
             dropout, embedding, fix, n_layers=1):
         super(BiLSTMNet, self).__init__()
         self.embedding = nn.Embedding.from_pretrained(
-            embedding=embedding,
+            embeddings=embedding,
             freeze=fix
         )
 

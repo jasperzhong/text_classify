@@ -29,8 +29,7 @@ class ModelConfig(object):
     d_a = 256
     r = 30
 
-    top_words = 20000
-    vocab_size = top_words + 2
+    vocab_size = None
 
 
 class Config(object):

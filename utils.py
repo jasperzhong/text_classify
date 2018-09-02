@@ -52,7 +52,7 @@ class Daguan(object):
                 json_info = json.dumps(self.word_to_id)
                 f.write(json_info)
 
-        assert(self.config.model.vocab_size == len(self.word_to_id))
+        self.config.model.vocab_size = len(self.word_to_id)
         return dataset, labels, self.word_to_id
     
     def load_test_dataset(self):

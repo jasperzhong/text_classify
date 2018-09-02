@@ -12,7 +12,7 @@ class BiLSTMNet(nn.Module):
             input_size=embed_size, 
             hidden_size=hidden_size, 
             num_layers=n_layers, 
-            #dropout=dropout,
+            dropout=dropout,
             bidirectional=True
         )
 

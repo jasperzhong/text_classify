@@ -42,8 +42,7 @@ class Daguan(object):
         dataset, labels = zip(*c)
 
         if flag:
-            self.word_cnt = sorted(self.word_cnt.items(), key = lambda x:int(x[1]), reverse=True)
-            self.word_cnt = self.word_cnt[:self.config.model.top_words]
+            self.word_cnt = list(filter(lambda x: self.word_cnt[x] > 5, self.word_cnt))
 
             for key, _ in self.word_cnt:
                 self.word_to_id[key] = self.vocab_size

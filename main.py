@@ -58,6 +58,16 @@ def train(config):
                 config.model.class_num,
                 config.model.dropout,
                 config.model.n_layers)
+    elif config.model.module == "BiLSTMSum":
+        net = BiLSTMSumNet(config.model.vocab_size,
+                config.model.embedd_size,
+                config.model.hidden_size,
+                config.model.max_seq_len,
+                config.model.class_num,
+                config.model.dropout,
+                embedding,
+                config.training.fix,
+                config.model.n_layers)
     else:
         raise ValueError("Undefined network")
 

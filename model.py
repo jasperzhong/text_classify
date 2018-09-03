@@ -32,7 +32,17 @@ class BiLSTMNet(nn.Module):
         self.classifier = nn.Sequential(
             nn.Linear(
                 hidden_size * 2,
-                class_num
+                192,
+            ),
+            nn.ReLU(),
+            nn.Linear(
+                192,
+                84,
+            ),
+            nn.ReLU(),
+            nn.Linear(
+                84,
+                class_num,
             )
         )
 

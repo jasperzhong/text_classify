@@ -88,6 +88,53 @@ class LinearSeqAttn(nn.Module):
         return alpha
 
 
+class BiLSTMSumNet(nn.Module):
+    def __init__(self, vocab_size, embed_size, hidden_size, seq_len, class_num, 
+            dropout, embedding, fix, n_layers=1):
+        super(BiLSTMNet, self).__init__()
+        self.embedding = nn.Embedding.from_pretrained(
+            embeddings=embedding,
+            freeze=fix
+        )
+
+        self.lstm = nn.LSTM(
+            input_size=embed_size, 
+            hidden_size=hidden_size, 
+            num_layers=n_layers, 
+            dropout=dropout,
+            bidirectional=True
+        )
+
+        self.classifier = nn.Sequential(
+            nn.Linear(
+                hidden_size * 2,
+                class_num
+            )
+        )
+
+    def forward(self, x):
+        '''
+        Inputs:
+            x: [T * B]
+        '''
+        # [T * B] -> [T * B * E]
+        embed = self.embedding(x)
+
+        # [T * B * E] -> [T * B * 2H]
+        output, hidden = self.lstm(embed)
+
+        # [T * B * 2H] -> [B * T * 2H]
+        output = output.transpose(0, 1).contiguous()
+
+        # [B * T * 2H] -> [B * 2H]
+        output = torch.sum(output, dim=1)
+        
+        # [B * 2H] -> [B * num_class]
+        output = self.classifier(output)
+
+        return output
+
+
 class BiGRUNet(nn.Module):
     def __init__(self, vocab_size, embed_size, hidden_size, seq_len, class_num, dropout, n_layers=1):
         super(BiGRUNet, self).__init__()

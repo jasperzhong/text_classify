@@ -18,7 +18,7 @@ class TrainingConfig(object):
 
 class ModelConfig(object):
     module = None
-    MODULES = ["BiLSTM", "BiGRU"]
+    MODULES = ["BiLSTM", "BiGRU", "BiLSTMSum"]
 
     max_seq_len = 1000
     embedd_size = 300

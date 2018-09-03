@@ -91,7 +91,7 @@ class LinearSeqAttn(nn.Module):
 class BiLSTMSumNet(nn.Module):
     def __init__(self, vocab_size, embed_size, hidden_size, seq_len, class_num, 
             dropout, embedding, fix, n_layers=1):
-        super(BiLSTMNet, self).__init__()
+        super(BiLSTMSumNet, self).__init__()
         self.embedding = nn.Embedding.from_pretrained(
             embeddings=embedding,
             freeze=fix
